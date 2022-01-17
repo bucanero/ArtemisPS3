@@ -2,6 +2,14 @@ Also known as
 Genji Kamiu Souran
 
 #
+Restore health
+0
+F2 10F8BAAC 10F8BAAE
+#
+Restore Kamui
+0
+F2 10478A82 10478A84
+#
 Max Mashogane Fragments
 0
 ChaosZage
