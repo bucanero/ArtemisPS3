@@ -64,6 +64,13 @@ Dependancies
 Compiling
 -------
 
+You need to have installed:
+
+- [PS3 toolchain](https://github.com/bucanero/ps3toolchain)
+- [PSL1GHT](https://github.com/ps3dev/PSL1GHT) SDK
+- [Tiny3D](https://github.com/wargio/Tiny3D) library
+- [PS3MAPI-lib](https://github.com/bucanero/ps3mapi-lib)
+
 This has been built using a makefile and my [VS Integration tools](https://github.com/Dnawrkshp/PS3-VS-Integration).
 Ideally, you'd use Visual Studio to run and compile as normal. However the command line will still operate functionally.
 
