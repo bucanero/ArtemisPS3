@@ -1,0 +1,58 @@
+name: Build app package
+
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  build_pkg:
+    runs-on: ubuntu-20.04
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Checkout Dependecies
+      run: |
+        git clone https://github.com/bucanero/dbglogger.git       --depth 1
+        git clone https://github.com/bucanero/ps3mapi-lib.git     --depth 1
+
+    - name: Set env vars
+      run: |
+        ver="1.$(git rev-list HEAD --count)"
+        echo "commit_ver=$ver" >> $GITHUB_ENV
+        echo "pkg_file=ArtemisPS3-GUI/ArtemisPS3-GUI.pkg" >> $GITHUB_ENV
+
+      # using pre-compiled sdk
+    - name: Download PSL1GHT Toolchain
+      run: |
+        curl -fLO https://github.com/bucanero/ps3toolchain/releases/download/ubuntu-latest-fad3b5fb/ps3dev-ubuntu-latest-2020-08-31.tar.gz
+        tar xf ps3dev-ubuntu-latest-2020-08-31.tar.gz
+        echo "PSL1GHT=${GITHUB_WORKSPACE}/ps3dev" >> $GITHUB_ENV
+
+    - name: Install dbglogger
+      working-directory: dbglogger
+      run: |
+        make
+        make install
+
+    - name: Install ps3mapi-lib
+      working-directory: ps3mapi-lib
+      run: |
+        make
+        make install
+
+    - name: Build Artemis App Package
+      working-directory: ArtemisPS3-GUI
+      run: |
+        make createzip
+        make
+
+    - name: Push package artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: apollo-ps4-build_${{ env.commit_ver }}
+        path: ${{ env.pkg_file }}
+        if-no-files-found: error
+        # don't keep artifacts for too long
+        retention-days: 7
