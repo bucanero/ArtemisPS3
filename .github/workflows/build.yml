@@ -1,4 +1,4 @@
-name: Build app package
+name: Build package
 
 on: [ push, pull_request, workflow_dispatch ]
 
@@ -47,7 +47,7 @@ jobs:
       working-directory: ArtemisPS3-GUI
       run: |
         make createzip
-        make
+        make pkg
 
     - name: Push package artifact
       uses: actions/upload-artifact@v3
