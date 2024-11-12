@@ -4,7 +4,6 @@
 
 
 static void *vsh_pdata_addr = NULL;
-static void *vsh_pad_obj_addr = NULL;
 
 
 
@@ -35,20 +34,12 @@ static uint32_t get_vsh_toc(void)
 /***********************************************************************
 * get vsh io_pad_object
 ***********************************************************************/
-/* static uint32_t get_vsh_pad_obj(void)
+static uint32_t get_vsh_pad_obj(void)
 {
 	uint32_t (*base)(uint32_t) = sys_io_3733EA3C;               // get pointer to cellPadGetData()
 	int16_t idx = *(uint32_t*)(*(uint32_t*)base) & 0x0000FFFF;  // get got_entry idx from first instruction,  
 	uint32_t got_entry = (idx + get_vsh_toc());                 // get got_entry of io_pad_object
   return (*(uint32_t*)got_entry);                             // return io_pad_object address
-} */
-static uint32_t get_vsh_pad_obj(void)
-{
-    uint32_t (*base)(uint32_t) = (void *)sys_io_3733EA3C;               // get pointer to cellPadGetData()
-    int16_t idx = *(uint32_t*)(*(uint32_t*)base) & 0x0000FFFF;  // get got_entry idx from first instruction,  
-    uint32_t got_entry = (idx + get_vsh_toc());                 // get got_entry of io_pad_object
-    vsh_pad_obj_addr = (void *)got_entry;
-    return (*(uint32_t*)got_entry);                             // return io_pad_object address
 }
 
 /***********************************************************************

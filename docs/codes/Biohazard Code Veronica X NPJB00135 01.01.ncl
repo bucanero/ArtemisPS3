@@ -78,3 +78,8 @@ Security Box 2 Anywhere
 CodeFreak/PS3UserCheat
 0 00BB35FD 14
 #
+Remove Door Animations
+0
+Kapdap
+0 001AE304 38600000
+#

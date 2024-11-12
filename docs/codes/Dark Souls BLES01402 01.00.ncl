@@ -24,52 +24,52 @@ Max Items on Use + Discard + Buy + Deposit in Storage
 Medo
 0 00BC3A68 60000000
 #
-Infinite Magic + Miracles + Pyromancy Slot #1
+Infinite Magic + Miracles + Pyromancy Slot 1
 0
 Medo
 0 00BCC2B4 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #2
+Infinite Magic + Miracles + Pyromancy Slot 2
 0
 Medo
 0 00BCC2F4 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #3
+Infinite Magic + Miracles + Pyromancy Slot 3
 0
 Medo
 0 00BCC334 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #4
+Infinite Magic + Miracles + Pyromancy Slot 4
 0
 Medo
 0 00BCC374 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #5
+Infinite Magic + Miracles + Pyromancy Slot 5
 0
 Medo
 0 00BCC3B4 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #6
+Infinite Magic + Miracles + Pyromancy Slot 6
 0
 Medo
 0 00BCC3F4 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #7
+Infinite Magic + Miracles + Pyromancy Slot 7
 0
 Medo
 0 00BCC434 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #8
+Infinite Magic + Miracles + Pyromancy Slot 8
 0
 Medo
 0 00BCC474 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #9
+Infinite Magic + Miracles + Pyromancy Slot 9
 0
 Medo
 0 00BCC4B4 30A90004
 #
-Infinite Magic + Miracles + Pyromancy Slot #10
+Infinite Magic + Miracles + Pyromancy Slot 10
 0
 Medo
 0 00BCC4F4 30A90004

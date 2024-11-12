@@ -45,7 +45,7 @@ SYS_MODULE_STOP(art_stop);
 
 static const int second = 1000000;
 
-const char* VERSION = "artemis r5";
+const char* VERSION = "artemis r4";
 
 static sys_ppu_thread_t thread_id = 1;
 
@@ -55,7 +55,7 @@ static process_id_t attachedPID = 0;
 static int exitThread = 0;
 
 //Config
-//static int hasChecked = 0;
+static int hasChecked = 0;
 static int isDEX = 0;
 static int isCCAPI = 0;
 
@@ -71,7 +71,7 @@ int check_turnoff_delay_max = 10;
 
 int art_start(uint64_t arg);
 int art_stop(void);
-//static void stop_prx_module(void);
+static void stop_prx_module(void);
 
 extern double ___atof(const char *str);
 
@@ -144,7 +144,7 @@ void * getNIDfunc(const char * vsh_module, uint32_t fnid, int32_t offset)
 static void show_msg(char* msg)
 {
 	if(!vshtask_notify)
-		vshtask_notify = (void*)((int*)getNIDfunc("vshtask", 0xA02D46E7, 0));
+		vshtask_notify = (void*)((int)getNIDfunc("vshtask", 0xA02D46E7, 0));
 
 	if(strlen(msg)>200) msg[200]=0;
 
@@ -1010,7 +1010,7 @@ static void art_process(int forceWrite)
  *  void
  * Return:			1 if on, 0 if off
  */
-static int check_turnoff(void)
+int check_turnoff(void)
 {
 	if (check_turnoff_delay >= check_turnoff_delay_max)
 	{
@@ -1027,11 +1027,11 @@ static int check_turnoff(void)
  * File:			main.c
  * Project:			ArtemisPS3-PRX
  * Description:		Checks syscalls to determine which API to use
- * Arguments:
+ * Arguments:		
  *  void
  * Return:			void
  */
-static void check_syscall_api(void)
+void check_syscall_api(void)
 {
 	char check[4];
 	isDEX = dex_get_process_mem(attachedPID, 0x10000, check, 4) != ENOSYS;
@@ -1071,13 +1071,13 @@ static void art_thread(uint64_t arg)
 	int GameProcessID = 0, lastGameProcessID = 0;
 
 	printf("Artemis PS3 :::: Thread Started!\n");
-
+	
 	sys_timer_sleep(10);
-	// sys_ppu_thread_yield();
-
+	sys_ppu_thread_yield();
+	
 	CellPadData data;
 	CellPadInfo2 info;
-	//int delay = 0, delay2 = 0, hasDisplayed = 0, fd = 0;
+	int delay = 0, delay2 = 0, hasDisplayed = 0, fd = 0;
 
 	while (1)
 	{
@@ -1105,22 +1105,12 @@ static void art_thread(uint64_t arg)
 					for (int x = 0; x < (10 * 100); x++) //10 second delay
 					{
 						sys_timer_usleep(10000);
-						// sys_ppu_thread_yield();
+						sys_ppu_thread_yield();
 					}
 
 
 					show_msg((char *)"Artemis PS3\nStart To Attach");
 				}
-
-				if ((attachedPID) && !(doForceWrite)) //fixes constant pointer write
-				{
-					art_process(0);
-				}
-/* 				else
-				if ((attachedPID) && (doForceWrite))
-				{
-					art_process(1);
-				} */
 
 				cellPadGetInfo2(&info);
 				if (info.port_status[0] && (cellPadGetData(0, &data) | 1) && data.len > 0)
@@ -1150,7 +1140,7 @@ static void art_thread(uint64_t arg)
 									break;
 
 								sys_timer_usleep(1000000);
-								// sys_ppu_thread_yield();
+								sys_ppu_thread_yield();
 							}
 						}
 						else
@@ -1184,7 +1174,7 @@ static void art_thread(uint64_t arg)
 
 		lastGameProcessID = GameProcessID;
 		sys_timer_usleep(1668);
-		// sys_ppu_thread_yield();
+		sys_ppu_thread_yield();
 	}
 
 	destroy_heap();

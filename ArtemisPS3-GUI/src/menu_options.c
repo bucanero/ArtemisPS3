@@ -62,11 +62,11 @@ void Draw_OptionsMenu_Ani()
 						DrawTexture(menu_textures[footer_ico_cross_png_index], MENU_OPTION_OFF - 29, y_off+2, 0, w, h, 0xFFFFFF00 | game_a);
 						break;
 					case ARTEMIS_OPTION_LIST:
+						SetFontAlign(3);
+						DrawString(MENU_OPTION_OFF - 18, y_off, menu_options_options[ind].options[menu_options_selections[ind]]);
 						SetFontAlign(0);
-						DrawString(MENU_OPTION_OFF - 60, y_off, menu_options_options[ind].options[menu_options_selections[ind]]);
 						break;
 					case ARTEMIS_OPTION_INC:
-						SetFontAlign(0);
 						sprintf((char*)ARTEMIS_OPTION_INC_TEMP, "- %d +", menu_options_selections[ind]);
 						int inc_width = WidthFromStr((u8*)ARTEMIS_OPTION_INC_TEMP);
 						DrawString((MENU_OPTION_OFF - 18) - (inc_width / 2), y_off, (char*)ARTEMIS_OPTION_INC_TEMP);
@@ -121,11 +121,11 @@ void Draw_OptionsMenu()
 				DrawTexture(menu_textures[footer_ico_cross_png_index], MENU_OPTION_OFF - 29, y_off+2, 0, w, h, 0xFFFFFFFF);
 				break;
 			case ARTEMIS_OPTION_LIST:
+				SetFontAlign(3);
+				DrawString(MENU_OPTION_OFF - 18, y_off, menu_options_options[ind].options[menu_options_selections[ind]]);
 				SetFontAlign(0);
-				DrawString(MENU_OPTION_OFF - 60, y_off, menu_options_options[ind].options[menu_options_selections[ind]]);
 				break;
 			case ARTEMIS_OPTION_INC:
-				SetFontAlign(0);
 				sprintf((char*)ARTEMIS_OPTION_INC_TEMP, "- %d +", menu_options_selections[ind]);
 				int inc_width = WidthFromStr((u8*)ARTEMIS_OPTION_INC_TEMP);
 				DrawString((MENU_OPTION_OFF - 18) - (inc_width / 2), y_off, (char*)ARTEMIS_OPTION_INC_TEMP);

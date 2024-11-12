@@ -35,7 +35,7 @@ static char getBuffer[64*1024];
 int http_init(void)
 {
     int ret;
-	s32 cert_size=0;
+	u32 cert_size=0;
 	u8 module_https_loaded=HTTP_NO;
 	u8 module_http_loaded=HTTP_NO;
 	u8 module_net_loaded=HTTP_NO;
@@ -193,6 +193,12 @@ char* escape_filename(const char* filename)
 	return ret;
 }
 
+int skip_ssl_callback(s32 verErr,sslCert const sslCerts[],int certNum,const char *host,httpSslId id,void *arg)
+{
+	LOG("sslId (%d) Err=%08X", id, verErr);
+	return 0;
+}
+
 int http_download(const char* url, const char* filename, const char* local_dst, int show_progress)
 {
 	int ret = 0, httpCode = 0;
@@ -200,8 +206,8 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 	httpClientId httpClient = 0;
 	httpTransId httpTrans = 0;
 	FILE* fp=NULL;
-	s32 nRecv = -1;
-	s32 size = 0;
+	u32 nRecv = 1;
+	u32 size = 0;
 	uint64_t length = 0;
 	void *uri_pool = NULL;
 	char* escaped_name = NULL;
@@ -213,6 +219,7 @@ int http_download(const char* url, const char* filename, const char* local_dst, 
 		ret=HTTP_FAILED;
 		goto end;
 	}
+    httpClientSetSslCallback(httpClient, &skip_ssl_callback, NULL);
     httpClientSetConnTimeout(httpClient, 10 * 1000 * 1000);
     httpClientSetUserAgent(httpClient, ARTEMIS_USER_AGENT);
     httpClientSetAutoRedirect(httpClient, 1);

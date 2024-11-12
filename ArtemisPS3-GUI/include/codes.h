@@ -11,7 +11,7 @@
 #define USERLIST_PATH_USB		"/dev_usb000/USERLIST/"
 #define USERLIST_PATH_HDD		ARTEMIS_PATH "USERLIST/"
 
-#define ONLINE_URL				"http://artemis.psdev.tk/"
+#define ONLINE_URL				"https://bucanero.github.io/ArtemisPS3/"
 #define ONLINE_LOCAL_CACHE		ARTEMIS_PATH "CACHE/"
 #define ARTEMIS_UPDATE_URL		"https://api.github.com/repos/bucanero/ArtemisPS3/releases/latest"
 
@@ -56,13 +56,14 @@ char * ParseActivatedGameList(struct game_entry * list, int count);
 void writeFile(const char * path, char * a, char * b);
 char * readFile(const char * path);
 void readFileBuffered(const char * path, char * buffer);
-void BubbleSortGameList(struct game_entry * games, int count);
-struct game_entry BubbleSortCodeList(struct game_entry game);
+void QSortGameList(struct game_entry * games, int count);
+struct game_entry QSortCodeList(struct game_entry game);
 int isCodeLineValid(char * line);
 long getFileSize(const char * path);
 struct option_entry * ReadOptions(struct code_entry code, int * count);
 struct code_entry * ReadNCL(const char * path, int * _code_count);
 struct code_entry * ReadOnlineNCL(const char * path, int * _code_count);
+int FilterInstalledGameList(struct game_entry * games, int count, char ** installed_titleids, int installed_count);
 
 int http_init(void);
 void http_end(void);

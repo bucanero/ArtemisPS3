@@ -1,7 +1,8 @@
 # Artemis PS3
 An Open Source Playstation 3 Hacking System created under the [Project Artemis initiative](http://www.gamehacking.org/artemis)
 
-[![Downloads][img_downloads]][artemis_downloads] [![Release][img_latest]][artemis_latest]
+[![Downloads][img_downloads]][artemis_downloads] [![Release][img_latest]][artemis_latest] [![License][img_license]][app_license]
+[![Build package](https://github.com/bucanero/ArtemisPS3/actions/workflows/build.yml/badge.svg)](https://github.com/bucanero/ArtemisPS3/actions/workflows/build.yml)
 
 Notes
 -----------
@@ -37,7 +38,6 @@ Screenshots
 Status
 -------
 
-- [X] Install MAMBA and PS3MAPI payload (if not already installed)
 - [X] Load artemis_ps3.sprx into VSH
 - [X] Access codes from an online database
 - [X] Access user codes
@@ -84,3 +84,5 @@ For the following, only selfs can be packaged and run.
 [artemis_latest]: https://github.com/bucanero/ArtemisPS3/releases/latest
 [img_downloads]: https://img.shields.io/github/downloads/bucanero/ArtemisPS3/total.svg?maxAge=3600
 [img_latest]: https://img.shields.io/github/release/bucanero/ArtemisPS3.svg?maxAge=3600
+[app_license]: https://github.com/bucanero/ArtemisPS3/blob/master/LICENSE
+[img_license]: https://img.shields.io/github/license/bucanero/ArtemisPS3.svg?maxAge=2592000

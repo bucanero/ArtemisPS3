@@ -907,35 +907,9 @@ void UnloadGameList(struct game_entry * list, int count)
  *	b:				Second code
  * Return:			1 if greater, 0 if less or equal
  */
-int BubbleSortCodeList_Compare(struct code_entry a, struct code_entry b)
+int QSortCodeList_Compare(const void* a, const void* b)
 {
-    if (!a.name || !b.name)
-        return 0;
-    
-    //Set up vars
-    int al = strlen(a.name), bl = strlen(b.name);
-    int x = 0;
-    
-    //Do comparison
-    int smallmax = (al <= bl) ? al : bl;
-    for (x = 0; x < smallmax; x++)
-    {
-        char cA = a.name[x], cB = b.name[x];
-        if (cA >= 'A' && cA <= 'Z')
-            cA += 0x20;
-        if (cB >= 'A' && cB <= 'Z')
-            cB += 0x20;
-        
-        if (cA > cB)
-            return 1;
-        else if (cA < cB)
-            return 0;
-    }
-    
-    if (al > bl)
-        return 1;
-    
-    return 0;
+    return strcasecmp(((struct code_entry*) a)->name, ((struct code_entry*) b)->name);
 }
 
 /*
@@ -947,29 +921,12 @@ int BubbleSortCodeList_Compare(struct code_entry a, struct code_entry b)
  *	game:			Game's code list to sort
  * Return:			Returns sorted game list
  */
-struct game_entry BubbleSortCodeList(struct game_entry game)
+struct game_entry QSortCodeList(struct game_entry game)
 {
     if (game.code_sorted)
         return game;
     
-    struct code_entry * swap = (struct code_entry *)malloc(sizeof(struct code_entry) * 1);
-    int c = 0, d = 0, count = game.code_count;
-    
-    for (c = 0; c < (count-1); c++)
-    {
-        int dMax = (count - c - 1);
-        for (d = 0 ; d < dMax; d++)
-        {
-            if (BubbleSortCodeList_Compare(game.codes[d], game.codes[d+1]))
-            {
-                swap[0] = game.codes[d];
-                game.codes[d]   = game.codes[d+1];
-                game.codes[d+1] = swap[0];
-            }
-        }
-    }
-    
-    free (swap);
+    qsort(game.codes, game.code_count, sizeof(struct code_entry), &QSortCodeList_Compare);
     
     game.code_sorted = 1;
     return game;
@@ -985,32 +942,9 @@ struct game_entry BubbleSortCodeList(struct game_entry game)
  *	b:				Pointer to int (set to the number of tags within the code)
  * Return:			Returns an array of option_entry and the count at *count
  */
-int BubbleSortGameList_Compare(struct game_entry a, struct game_entry b)
+int QSortGameList_Compare(const void* a, const void* b)
 {
-    //Set up vars
-    int al = strlen(a.name), bl = strlen(b.name);
-    int x = 0;
-    
-    //Do comparison
-    int smallmax = (al <= bl) ? al : bl;
-    for (x = 0; x < smallmax; x++)
-    {
-        char cA = a.name[x], cB = b.name[x];
-        if (cA >= 'A' && cA <= 'Z')
-            cA += 0x20;
-        if (cB >= 'A' && cB <= 'Z')
-            cB += 0x20;
-        
-        if (cA > cB)
-            return 1;
-        else if (cA < cB)
-            return 0;
-    }
-    
-    if (al > bl)
-        return 1;
-    
-    return 0;
+    return strcasecmp(((struct game_entry*) a)->name, ((struct game_entry*) b)->name);
 }
 
 /*
@@ -1023,27 +957,54 @@ int BubbleSortGameList_Compare(struct game_entry a, struct game_entry b)
  *	count:			Number of games in games
  * Return:			void
  */
-void BubbleSortGameList(struct game_entry * games, int count)
+void QSortGameList(struct game_entry * games, int count)
+{
+    qsort(games, count, sizeof(struct game_entry), &QSortGameList_Compare);
+}
+
+int FilterGameList_Compare(struct game_entry *game, char ** titleids, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        if (!titleids[i])
+            continue;
+
+        if (game->title_id && (strncmp(game->title_id, titleids[i], 9) == 0))
+            return 0;
+
+        if (game->name && strstr(game->name, titleids[i]))
+            return 0;
+
+    }
+    return 1;
+}
+
+int FilterInstalledGameList(struct game_entry * games, int count, char ** installed_titleids, int installed_count)
 {
     //Allocate so we don't use the stack
     struct game_entry * swap = (struct game_entry *)malloc(sizeof(struct game_entry) * 1);
-    int c = 0, d = 0;
+    int b = 0, t = 0, i;
     
     //Bubble sort
-    for (c = 0; c < (count-1); c++)
+    for (b = (count-1); b > t; b--)
     {
-        for (d = 0 ; d < (count - c - 1); d++)
-        {
-            if (BubbleSortGameList_Compare(games[d], games[d+1]))
+        if (!FilterGameList_Compare(&games[b], installed_titleids, installed_count))
+            for (i = t; i < b; i++)
             {
-                swap[0]       = games[d];
-                games[d]   = games[d+1];
-                games[d+1] = swap[0];
+                if (FilterGameList_Compare(&games[i], installed_titleids, installed_count))
+                {
+                    swap[0]  = games[b];
+                    games[b] = games[i];
+                    games[i] = swap[0];
+
+                    t = i+1;
+                    break;
+                }
             }
-        }
     }
-    
+
     free (swap);
+    return(b);
 }
 
 /*

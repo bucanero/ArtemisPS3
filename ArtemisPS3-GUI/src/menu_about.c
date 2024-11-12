@@ -46,7 +46,7 @@ void Draw_AboutMenu_Ani()
 		SetFontAlign(0);
 		SetCurrentFont(font_comfortaa_bold);
 		SetFontSize(18, 16);
-		float dx = DrawString((848 - (u32)WidthFromStr((u8*)"Playstation 3® version:")) / 2, 140, "Playstation 3");
+		float dx = DrawString((848 - (u32)WidthFromStr((u8*)"PlayStation 3® version:")) / 2, 140, "PlayStation 3");
 		//Make the ® small
 		SetFontSize(9, 8);
 		dx = DrawString(dx, 139, "® ");
@@ -130,7 +130,7 @@ void Draw_AboutMenu_Ani__()
 		SetFontAlign(0);
 		SetCurrentFont(font_comfortaa_bold);
 		SetFontSize(18, 16);
-		float dx = DrawString((848 - (u32)WidthFromStr((u8*)"Playstation 3® version:")) / 2, 140, "Playstation 3");
+		float dx = DrawString((848 - (u32)WidthFromStr((u8*)"PlayStation 3® version:")) / 2, 140, "PlayStation 3");
 		//Make the ® small
 		SetFontSize(9, 8);
 		dx = DrawString(dx, 139, "® ");
@@ -195,7 +195,7 @@ void Draw_AboutMenu()
 	SetFontAlign(0);
 	SetCurrentFont(font_comfortaa_bold);
 	SetFontSize(18, 16);
-	float dx = DrawString((848 - (u32)WidthFromStr((u8*)"Playstation 3® version:")) / 2, 140, "Playstation 3");
+	float dx = DrawString((848 - (u32)WidthFromStr((u8*)"PlayStation 3® version:")) / 2, 140, "PlayStation 3");
 	//Make the ® small
 	SetFontSize(9, 8);
 	dx = DrawString(dx, 139, "® ");

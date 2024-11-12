@@ -62,3 +62,8 @@ jgduff1
 0 00174E04 60000000
 0 001B6FD8 60000000
 #
+Remove Door Animations
+0
+Kapdap
+0 001AFCCC 38600000
+#

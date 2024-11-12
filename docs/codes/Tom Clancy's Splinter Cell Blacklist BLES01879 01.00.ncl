@@ -1,0 +1,47 @@
+Infinite Ammo
+0
+bullishtq
+0 0054CF50 907C0004
+#
+Invisibility OFF (Disabler)
+0
+bullishtq
+0 008AADD0 546337FE
+0 008AADD4 2C030000
+0 008AADD8 408200A8
+#
+Invisibility ON
+0
+bullishtq
+0 008AADD0 64630400
+0 008AADD4 906404E4
+0 008AADD8 480000A8
+#
+Infinite Health OFF (Disabler)
+0
+bullishtq
+0 00751138 FFE00890
+0 0075113C 807C04E0
+#
+Infinite Health ON
+0
+bullishtq
+0 00751138 C3E30068
+0 0075113C D3E3006C
+#
+God Mode OFF (Disabler)
+0
+bullishtq
+0 007504F8 5086E884
+#
+God Mode ON
+0
+bullishtq
+0 007504F8 64C62000
+#
+Max Money on Buy
+0
+bullishtq
+0 005DD9C8 3CA03B9A
+0 005DD9CC 60A5C9FF
+#

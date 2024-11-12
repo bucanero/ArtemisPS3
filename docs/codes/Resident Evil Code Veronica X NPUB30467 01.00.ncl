@@ -39,3 +39,8 @@ Infinite Escape Time
 Hiei-YYH
 0 001ABDB8 30630000
 #
+Remove Door Animations
+0
+Kapdap
+0 001AE25C 38600000
+#

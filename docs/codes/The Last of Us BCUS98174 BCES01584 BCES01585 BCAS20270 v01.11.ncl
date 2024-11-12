@@ -10,8 +10,14 @@ Medo ported by Randy97Killa
 #
 Infinite Everything (Ammo, Items, Skills, Parts)
 0
-Medo ported by Randy97Killa
-0 000336C0 60000000
+Medo ported by Randy97Killa, Improved by illusion
+0 0003495C 60000000
+#
+Max tools level
+0
+illusion
+0 00082960 38000005
+0 00082788 60000000
 #
 Infinite Ammo + Bottomless Clip (No Reload)
 0
@@ -58,9 +64,8 @@ run around you in circles.
 #
 Flashlight Never Dies
 0
-bungholio ported by Randy97Killa
-0 006ACBC8 3C0043B4
-0 006ACBCC 901F05E4
+bungholio ported by Randy97Killa, Improved by ZEROx
+0 006ACBC8 60000000
 #
 Auto Shiv Monsters
 0
