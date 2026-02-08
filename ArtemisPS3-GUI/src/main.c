@@ -2,6 +2,7 @@
     Artemis PS3 main.c
 */
 
+#include <sys/process.h>
 #include <ppu-lv2.h>
 #include <sys/spu.h>
 #include <lv2/spu.h>
@@ -58,6 +59,8 @@
 #include <soundlib/audioplayer.h>
 #include "spu_soundmodule_bin.h"
 #include "background_music_mp3.h"
+
+#include "patch.h"
 
 // SPU
 u32 inited;
@@ -1155,7 +1158,7 @@ void ReloadUserCheats(void)
     }
     
     int gmc[1];
-    user_game_list = ReadUserList((int *)gmc);
+    user_game_list = ReadUserPatchList((int *)gmc);
     user_game_count = *gmc;
     if (doSort)
         QSortGameList(user_game_list, user_game_count);
@@ -1500,7 +1503,9 @@ void drawScene(void)
 					if (!user_game_list[menu_sel].codes)
 					{
 						int sz = 0;
-						user_game_list[menu_sel].codes = ReadNCL(user_game_list[menu_sel].path, &sz);
+                        printf("before read yml\n");
+						user_game_list[menu_sel].codes = readYML(&user_game_list[menu_sel], &sz);
+                        printf("after read yml sz %d\n", sz);
 						user_game_list[menu_sel].code_count = sz;
 					}
                     if (doSort)
@@ -1711,6 +1716,15 @@ void drawScene(void)
                             return;
                         }
                     }
+                    if (selected_entry.codes[menu_sel].patch)
+                    {
+                        const uint32_t sel_hash = selected_entry.codes[menu_sel].hash;
+                        LOG("patch %d hash %x toggled %s",menu_sel, sel_hash, selected_entry.codes[menu_sel].activated ? "true" : "false");
+                        char path_settings[256];
+                        snprintf(path_settings, sizeof(path_settings), GAME_PATCH_SETTINGS "/%s.bin", selected_entry.title_id);
+                        sysLv2FsMkdir(GAME_PATCH_SETTINGS, 777);
+                        toggle_patch_state(path_settings,sel_hash);
+                    }
                 }
                 else if (paddata[0].BTN_SQUARE)
                 {
@@ -1819,6 +1833,8 @@ void exiting(void)
 s32 main(s32 argc, const char* argv[])
 {
 	dbglogger_init();
+
+    LOG("==== ArtermisPS3 Startup ====");
 
 	http_init();
 
@@ -1970,5 +1986,8 @@ s32 main(s32 argc, const char* argv[])
     }
     
     release_all();
+#if defined(ARTEMIS_ENABLE_LOGGING)
+    sysProcessExitSpawn2("/dev_hdd0/game/PSL145310/RELOAD.SELF", NULL, NULL, NULL, 0, 1001, SYS_PROCESS_SPAWN_STACK_SIZE_1M);
+#endif
     return 0;
 }

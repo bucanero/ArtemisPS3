@@ -1,8 +1,27 @@
+#include <stdbool.h>
+
 #ifdef ARTEMIS_ENABLE_LOGGING
 #include <dbglogger.h>
 #define LOG dbglogger_log
 #else
-#define LOG(...)
+#include <stdarg.h>
+#include <stdio.h>
+static int newline_printf(const char *fmt, ...)
+{
+    char buf[1024 + 1] = {0};
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buf, sizeof(buf) - 1, fmt, args);
+    int len = strlen(buf) - 1;
+    if (len > 0 && buf[len] == '\n')
+    {
+        buf[len] = '\0';
+    }
+    va_end(args);
+    puts(buf);
+    return 0;
+}
+#define LOG newline_printf
 #define dbglogger_init(...)
 #endif
 
@@ -30,9 +49,11 @@ struct option_entry
 struct code_entry
 {
     char * name;
-    int cwrite;
-    int activated;
+    bool cwrite : 1;
+    bool activated : 1;
+    bool patch : 1;
     int options_count;
+    uint32_t hash;
     char * codes;
     struct option_entry * options;
 };
@@ -43,12 +64,13 @@ struct game_entry
 	char * version;
 	char * title_id;
 	char * path;
-    int code_count;
+    size_t code_count;
     int code_sorted;
     struct code_entry * codes;
 };
 
 struct game_entry * ReadUserList(int * gmc);
+struct game_entry * ReadUserPatchList(int * gmc);
 struct game_entry * ReadOnlineList(int * gmc);
 void UnloadGameList(struct game_entry * list, int count);
 int isGameActivated(struct game_entry game);
@@ -62,6 +84,7 @@ int isCodeLineValid(char * line);
 long getFileSize(const char * path);
 struct option_entry * ReadOptions(struct code_entry code, int * count);
 struct code_entry * ReadNCL(const char * path, int * _code_count);
+struct code_entry * readYML(struct game_entry * user, int * _code_count);
 struct code_entry * ReadOnlineNCL(const char * path, int * _code_count);
 int FilterInstalledGameList(struct game_entry * games, int count, char ** installed_titleids, int installed_count);
 

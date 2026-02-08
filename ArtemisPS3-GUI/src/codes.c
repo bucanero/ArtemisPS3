@@ -10,8 +10,12 @@
 #include <dirent.h> 
 #include <sys/stat.h>
 
+#include "patch.h"
 #include "codes.h"
 #include "common.h"
+
+#include "../shared/macros.h"
+#include "../shared/stringid.h"
 
 /*
  * Function:		parseVTID_ParseTitleID()
@@ -270,7 +274,7 @@ long getDirListSize(const char * path)
             if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
             {
                 snprintf(fullPath, sizeof(fullPath)-1, "%s%s", path, dir->d_name);
-                if (file_exists(fullPath) == SUCCESS && EndsWith(dir->d_name, ".ncl"))
+                if (file_exists(fullPath) == SUCCESS && (EndsWith(dir->d_name, ".ncl") || EndsWith(dir->d_name, ".yml")))
                 {
                     count++;
                 }
@@ -780,6 +784,92 @@ struct code_entry * ReadNCL(const char * path, int * _code_count)
     return ret;
 }
 
+struct code_entry *readYML(struct game_entry *user, int *_code_count)
+{
+    int fileSize = getFileSize(user->path);
+    if (fileSize <= 0)
+    {
+        return NULL;
+    }
+    GamePatchInfo game_info = {};
+    strncpy(game_info.titleid, user->title_id, _countof_1(game_info.titleid));
+    strncpy(game_info.app_ver, user->version, _countof_1(game_info.app_ver));
+
+    ParseContext ctx = {};
+    create_parse_context(&ctx, &game_info, PARSE_MODE_ALL);
+
+    ctx.title = user->name;
+    int ret = parse_patch_file(&ctx, user->path);
+    struct code_entry *ce = 0;
+    if (ret == 0)
+    {
+        size_t count = 0;
+        PatchData *patches = get_all_patches(&ctx, &count);
+        if (patches)
+        {
+            const size_t szb = sizeof(*ce) * count;
+            ce = malloc(szb);
+            if (ce)
+            {
+                memset(ce, 0, szb);
+                *_code_count = count;
+                for (size_t i = 0; i < count; i++)
+                {
+                    ce[i].name = strdup(patches[i].metadata.name);
+                    ce[i].hash = patches[i].metadata.hash;
+                    ce[i].patch = true;
+                    char settings_buf[256 + 1] = {0};
+                    snprintf(settings_buf, _countof_1(settings_buf), GAME_PATCH_SETTINGS "/%s.bin", user->title_id);
+                    ce[i].activated = read_patch_state(settings_buf, patches[i].metadata.hash) == 1;
+                    LOG("\nPatch #%ld (Hash: 0x%08x):\n",
+                        patches[i].metadata.patch_number,
+                        patches[i].metadata.hash);
+                    LOG("  Title: %s\n", patches[i].metadata.title ? patches[i].metadata.title : "N/A");
+                    // make code buf
+                    size_t total_size = 0;
+                    for (size_t j = 0; j < patches[i].entry_count; j++)
+                    {
+                        total_size += 4; // "- [ "
+                        for (size_t k = 0; k < patches[i].entries[j].param_count; k++)
+                        {
+                            total_size += strlen(patches[i].entries[j].params[k]) + 2; // param + quotes
+                            if (k < patches[i].entries[j].param_count - 1)
+                                total_size += 2; // ", "
+                        }
+                        total_size += 3; // " ]\n"
+                    }
+                    total_size += 1; // null terminator
+                    LOG("Code buf total_size %ld", total_size);
+                    char *code_buf = (char *)malloc(total_size);
+                    if (!code_buf)
+                    {
+                        ce[i].codes = 0;
+                        continue;
+                    }
+                    memset(code_buf, 0, total_size);
+                    size_t offset = 0;
+                    for (size_t j = 0; j < patches[i].entry_count; j++)
+                    {
+                        offset += snprintf(code_buf + offset, total_size - offset, "- [ ");
+                        for (size_t k = 0; k < patches[i].entries[j].param_count; k++)
+                        {
+                            offset += snprintf(code_buf + offset, total_size - offset,
+                                               "\"%s\"", patches[i].entries[j].params[k]);
+                            if (k < patches[i].entries[j].param_count - 1)
+                                offset += snprintf(code_buf + offset, total_size - offset, ", ");
+                        }
+                        offset += snprintf(code_buf + offset, total_size - offset, " ]\n");
+                    }
+                    LOG("Code: %s", code_buf);
+                    ce[i].codes = code_buf;
+                }
+            }
+        }
+    }
+    free_parse_context_data(&ctx);
+    return ce;
+}
+
 /*
  * Function:		ReadOnlineNCL()
  * File:			codes.c
@@ -1077,6 +1167,154 @@ struct game_entry * ReadUserList(int * gmc)
     }
     
     return ret;
+}
+
+static int checkUSB(char *usb_buf, const size_t usb_buf_sz, const char *path)
+{
+    memset(usb_buf, 0, usb_buf_sz);
+    const size_t MAX_USB_DEVICES = 6;
+    for (size_t i = 0; i < MAX_USB_DEVICES; i++)
+    {
+        snprintf(usb_buf, usb_buf_sz - 1, USB_PATH "/%s", i, path + 1);
+        if (dir_exists(usb_buf) == SUCCESS)
+        {
+            return SUCCESS;
+        }
+    }
+    return FAILED;
+}
+
+struct game_entry *ReadUserPatchList(int *gmc)
+{
+    char *userPath;
+    char usb_buf[256 + 1];
+    if (checkUSB(usb_buf, sizeof(usb_buf), BASE_GAME_PATCH_PATH "/") == SUCCESS)
+    {
+        userPath = usb_buf;
+    }
+    else
+    {
+        userPath = GAME_PATCH_FILES_PATH "/";
+    }
+    int game_count = getDirListSize(userPath);
+    if (!game_count)
+    {
+        LOG("game_count %d", game_count);
+        return NULL;
+    }
+
+    struct game_entry *ge = NULL;
+    *gmc = 0;
+    DIR *d;
+    struct dirent *dir;
+    d = opendir(userPath);
+
+    uint32_t *hash_list = NULL;
+    size_t hash_list_capacity = 0;
+    size_t hash_count = 0;
+
+    if (d)
+    {
+        while ((dir = readdir(d)) != NULL)
+        {
+            if (strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0)
+            {
+                char fullPath[256 + 1] = {0};
+                snprintf(fullPath, _countof_1(fullPath), "%s%s", userPath, dir->d_name);
+                LOG("%s() reading %s", __FUNCTION__, fullPath);
+                if (file_exists(fullPath) == SUCCESS && EndsWith(dir->d_name, ".yml"))
+                {
+                    char titleid_buf[16] = {0};
+                    char *title_id = stripExt(dir->d_name);
+                    if (strlen(title_id) == _countof_1("XXXX12345"))
+                    {
+                        strcpy(titleid_buf, title_id);
+                        GamePatchInfo game_info = {};
+                        ParseContext ctx = {};
+                        create_parse_context(&ctx, &game_info, PARSE_MODE_METADATA);
+                        int ret = parse_patch_file(&ctx, fullPath);
+                        if (ret == 0)
+                        {
+                            size_t count = 0;
+                            PatchMetadata *metadata = get_metadata(&ctx, &count);
+                            if (metadata && count > 0)
+                            {
+                                size_t new_capacity = hash_list_capacity + count;
+                                uint32_t *new_hash_list = realloc(hash_list, new_capacity * sizeof(uint32_t));
+                                if (new_hash_list == NULL)
+                                {
+                                    LOG("Failed to allocate hash list");
+                                    free_parse_context_data(&ctx);
+                                    continue;
+                                }
+                                hash_list = new_hash_list;
+                                hash_list_capacity = new_capacity;
+                                for (size_t i = 0; i < count; i++)
+                                {
+                                    uint32_t hash = 0;
+                                    const char *string_list[] = {
+                                        // fullPath,
+                                        metadata[i].title,
+                                        titleid_buf,
+                                        metadata[i].app_ver,
+                                    };
+                                    for (size_t i = 0; i < _countof(string_list); i++)
+                                    {
+                                        hash = stringid(string_list[i], hash);
+                                    }
+                                    int is_duplicate = 0;
+                                    for (size_t j = 0; j < hash_count; j++)
+                                    {
+                                        if (hash_list[j] == hash)
+                                        {
+                                            is_duplicate = 1;
+                                            LOG("Skipping duplicate entry: %s (hash: 0x%08x)",
+                                                metadata[i].title, hash);
+                                            break;
+                                        }
+                                    }
+
+                                    if (!is_duplicate)
+                                    {
+                                        size_t old_count = *gmc;
+                                        const size_t szb = (old_count + 1) * sizeof(*ge);
+                                        struct game_entry *new_ge = realloc(ge, szb);
+
+                                        if (new_ge != NULL)
+                                        {
+                                            ge = new_ge;
+                                            memset(&ge[old_count], 0, sizeof(ge[old_count]));
+
+                                            ge[old_count].path = strdup(fullPath);
+                                            ge[old_count].name = strdup(metadata[i].title);
+                                            ge[old_count].title_id = stripExt(dir->d_name);
+                                            ge[old_count].version = strdup(metadata[i].app_ver);
+                                            hash_list[hash_count++] = hash;
+                                            (*gmc)++;
+                                        }
+                                        else
+                                        {
+                                            LOG("Failed to allocate game entry");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        free_parse_context_data(&ctx);
+                    }
+                    free(title_id);
+                }
+            }
+        }
+        closedir(d);
+    }
+
+    if (hash_list)
+    {
+        free(hash_list);
+    }
+
+    return ge;
 }
 
 /*

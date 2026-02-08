@@ -544,7 +544,14 @@ void DrawCheatsList(int selIndex, struct game_entry game, u8 alpha)
                 SetFontAlign(3);
 				//SetCurrentFont(font_comfortaa_light);
 				SetFontColor(0xFFFFFF00 | a, 0);
-				DrawString(MENU_ICON_OFF + ((MENU_TITLE_OFF * 3) - 15) / 2, game_y + 2, game.codes[x].cwrite ? "constant" : "once");
+                if (game.codes[x].patch)
+                {
+                    DrawString(MENU_ICON_OFF + ((MENU_TITLE_OFF * 3) - 15) / 2, game_y + 2, "active");
+                }
+                else
+				{
+                    DrawString(MENU_ICON_OFF + ((MENU_TITLE_OFF * 3) - 15) / 2, game_y + 2, game.codes[x].cwrite ? "constant" : "once");
+                }
                 SetFontAlign(0);
                 SetFontSize(14, 16);
                 
