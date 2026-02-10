@@ -4,7 +4,7 @@ on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
   build_pkg:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
 
     - name: Checkout
@@ -17,6 +17,44 @@ jobs:
         git clone https://github.com/bucanero/dbglogger.git       --depth 1
         git clone https://github.com/bucanero/ps3mapi-lib.git     --depth 1
 
+    - name: Install Build Dependecies
+      run: |
+        # Fix `make_self: error while loading shared libraries: libcrypto.so.1.1: cannot open shared object file: No such file or directory`
+        REPO_URL="http://security.debian.org/debian-security/pool/updates/main/o/openssl/"
+        #	libssl1.1_1.1.1w-0+deb11u4_amd64.deb
+        PACKAGE_PATTERN="libssl1.1.*_amd64.deb"
+        FILELIST=$(curl -s "${REPO_URL}" | grep -oP 'href="\K[^"]+' | grep "${PACKAGE_PATTERN}" || true)
+
+        if [ -z "$FILELIST" ]; then
+            echo "No packages found."
+            exit 1
+        fi
+
+        echo "Found packages:"
+        echo "$FILELIST"
+
+        NEWEST=$(echo "$FILELIST" | sort -V | tail -n 1)
+
+        if [ -z "$NEWEST" ]; then
+            echo "Could not determine newest package."
+            exit 1
+        fi
+
+        DOWNLOAD_URL="${REPO_URL}${NEWEST}"
+        curl -L -O "${DOWNLOAD_URL}"
+
+        if [ $? -eq 0 ]; then
+            sudo apt install ./${NEWEST}
+        else
+            echo "Download failed!"
+            exit 1
+        fi
+        # and missing python2
+        # https://askubuntu.com/a/1527884
+        sudo apt update
+        wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb  
+        sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./python2.7_2.7.18-13ubuntu1.5_amd64.deb
+
     - name: Set env vars
       id: slug
       run: |
@@ -26,7 +64,7 @@ jobs:
       # using pre-compiled sdk
     - name: Download PSL1GHT Toolchain
       run: |
-        curl -sL https://github.com/bucanero/ps3toolchain/releases/download/ubuntu-latest-fad3b5fb/ps3dev-ubuntu-latest-2020-08-31.tar.gz | tar xvz -C ./
+        curl -sL https://github.com/bucanero/ps3toolchain/releases/download/ubuntu-latest-fad3b5fb/ps3dev-ubuntu-latest-2020-08-31.tar.gz | tar xz -C ./
         echo "PS3DEV=${GITHUB_WORKSPACE}/ps3dev" >> $GITHUB_ENV
         echo "PSL1GHT=${GITHUB_WORKSPACE}/ps3dev" >> $GITHUB_ENV
 
