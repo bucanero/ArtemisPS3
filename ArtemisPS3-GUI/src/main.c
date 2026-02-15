@@ -214,6 +214,12 @@ struct game_entry * online_game_list = NULL;
 int online_game_count = 0;
 
 /*
+* Patch code list
+*/
+struct game_entry * patch_game_list = NULL;
+int patch_game_count = 0;
+
+/*
 * Filtered code list
 */
 int filter_user_count = 0;
@@ -1434,7 +1440,10 @@ void drawScene(void)
                         case 3: //Options menu
                             SetMenu(4);
                             return;
-                        case 4: //About menu
+                        case 4: //Patches menu
+                            SetMenu(8);
+                            return;
+                        case 5: //About menu
                             SetMenu(3);
                             return;
                     }
@@ -1503,9 +1512,7 @@ void drawScene(void)
 					if (!user_game_list[menu_sel].codes)
 					{
 						int sz = 0;
-                        printf("before read yml\n");
-						user_game_list[menu_sel].codes = readYML(&user_game_list[menu_sel], &sz);
-                        printf("after read yml sz %d\n", sz);
+						user_game_list[menu_sel].codes = ReadNCL(user_game_list[menu_sel].path, &sz);
 						user_game_list[menu_sel].code_count = sz;
 					}
                     if (doSort)
@@ -1818,7 +1825,79 @@ void drawScene(void)
             
             Draw_CheatsMenu_Options();
             break;
-    }
+
+        case 8: //Offline Patch Menu
+            
+            // Check the pads.
+            if (readPad(0))
+            {
+                if(paddata[0].BTN_UP)
+                {
+					move_selection_back(patch_game_count, 1);
+                }
+                else if(paddata[0].BTN_DOWN)
+                {
+					move_selection_fwd(patch_game_count, 1);
+                }
+                else if (paddata[0].BTN_LEFT)
+                {
+					move_selection_back(patch_game_count, 5);
+                }
+                else if (paddata[0].BTN_L1)
+                {
+					move_selection_back(patch_game_count, 25);
+                }
+                else if (paddata[0].BTN_L2)
+                {
+					move_letter_back(patch_game_list, patch_game_count);
+                }
+                else if (paddata[0].BTN_RIGHT)
+                {
+					move_selection_fwd(patch_game_count, 5);
+                }
+                else if (paddata[0].BTN_R1)
+                {
+					move_selection_fwd(patch_game_count, 25);
+                }
+                else if (paddata[0].BTN_R2)
+                {
+					move_letter_fwd(patch_game_list, patch_game_count);
+                }
+                else if (paddata[0].BTN_CIRCLE)
+                {
+                    SetMenu(0);
+                    return;
+                }
+                else if (paddata[0].BTN_CROSS)
+                {
+					if (!patch_game_list[menu_sel].codes)
+					{
+						int sz = 0;
+                        printf("before read yml\n");
+						patch_game_list[menu_sel].codes = readYML(&patch_game_list[menu_sel], &sz);
+                        printf("after read yml sz %d\n", sz);
+						patch_game_list[menu_sel].code_count = sz;
+					}
+                    if (doSort)
+                        patch_game_list[menu_sel] = QSortCodeList(patch_game_list[menu_sel]);
+                    selected_entry = patch_game_list[menu_sel];
+                    SetMenu(5);
+                    return;
+                }
+                else if (paddata[0].BTN_TRIANGLE)
+                {
+                    FilterUserGames();
+                    menu_sel = 0;
+                }
+                else if (paddata[0].BTN_SQUARE)
+                {
+                    ReloadUserCheats();
+                }
+            }
+            
+            Draw_UserCheatsMenu(patch_game_list, patch_game_count, menu_sel, 0xFF);
+            break;
+	}
 }
 
 void exiting(void)
