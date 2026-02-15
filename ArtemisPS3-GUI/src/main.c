@@ -817,11 +817,17 @@ void Draw_MainMenu(void)
 	SetFontColor(0x00000000 | ((menu_sel == 3) ? 0xFF : 32), 0x00000000);
 	DrawString(350 + 150 + (MENU_MAIN_ICON_WIDTH / 2) + 14, 390, "Options");
 
-    //About
-	c = titlescr_ico_abt_png_index;
+    //Patches
+	c = titlescr_ico_pat_png_index;
 	DrawTexture(menu_textures[c], 450 + 150, 320, 0, MENU_MAIN_ICON_WIDTH, 64, 0xffffff00 | ((menu_sel == 4) ? 0xFF : 32));
 	SetFontColor(0x00000000 | ((menu_sel == 4) ? 0xFF : 32), 0x00000000);
-	DrawString(450 + 150 + (MENU_MAIN_ICON_WIDTH / 2), 390, "About");
+	DrawString(450 + 150 + (MENU_MAIN_ICON_WIDTH / 2), 390, "Patches");
+
+	//About
+	c = titlescr_ico_abt_png_index;
+	DrawTexture(menu_textures[c], 550 + 150, 320, 0, MENU_MAIN_ICON_WIDTH, 64, 0xffffff00 | ((menu_sel == 5) ? 0xFF : 32));
+	SetFontColor(0x00000000 | ((menu_sel == 5) ? 0xFF : 32), 0x00000000);
+	DrawString(550 + 150 + (MENU_MAIN_ICON_WIDTH / 2), 390, "About");
 
 	SetFontAlign(0);
 }
@@ -887,6 +893,7 @@ void LoadTexture(void)
     load_menu_texture(titlescr_ico_opt, png);
     load_menu_texture(titlescr_ico_xmb, png);
     load_menu_texture(titlescr_ico_net, png);
+    load_menu_texture(titlescr_ico_pat, png);
     load_menu_texture(titlescr_logo, png);
 }
 
@@ -1388,11 +1395,11 @@ void drawScene(void)
             {
                 if(paddata[0].BTN_LEFT)
                 {
-					move_selection_back(5, 1);
+					move_selection_back(6, 1);
                 }
                 else if(paddata[0].BTN_RIGHT)
                 {
-					move_selection_fwd(5, 1);
+					move_selection_fwd(6, 1);
                 }
                 else if (paddata[0].BTN_CROSS)
                 {
