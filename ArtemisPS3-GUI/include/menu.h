@@ -37,6 +37,7 @@
 #define	 titlescr_ico_xmb_png_index							31
 #define	 titlescr_ico_net_png_index							32
 #define	 titlescr_logo_png_index							33
+#define	 titlescr_ico_pat_png_index							34
 
 //Fonts
 #define  font_comfortaa_regular								0
