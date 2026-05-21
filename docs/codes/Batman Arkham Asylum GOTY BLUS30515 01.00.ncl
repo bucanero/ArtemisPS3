@@ -15,3 +15,8 @@ Debug Menu (R1 + Start)
 dron_3
 0 0121DBAC 38600000
 #
+Debug Menu (PSXPlace)
+0
+Joey
+0 0121DBAC 38600000
+#

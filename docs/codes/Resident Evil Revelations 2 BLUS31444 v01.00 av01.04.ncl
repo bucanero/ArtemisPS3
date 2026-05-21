@@ -121,7 +121,7 @@ Randy97Killa
 0 008B4884 60000000
 0 008B4888 60000000
 #
-Infinite Throwables [Raid Mode] 
+Infinite Throwables [Raid Mode]
 0
 Randy97Killa
 0 0040E2F8 3BA00064
@@ -165,4 +165,10 @@ Stop CountDown Skills Timer [Raid Mode]
 Randy97Killa
 0 0040DED0 48000004
 0 0040E2D4 91BE0024
+#
+Unlock FPS (PSXPlace)
+0
+Joey
+0 00F310BC 60000000
+0 00F310D0 60000000
 #

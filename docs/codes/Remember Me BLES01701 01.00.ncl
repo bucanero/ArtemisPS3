@@ -3,3 +3,9 @@ PMP 30000x
 games24.blog.fc2.com/blog-entry-176.html
 0 00C494A8 38637530
 #
+Unlock FPS (PSXPlace)
+0
+Joey
+0 00A347D4 28030001
+0 00A34914 28030001
+#

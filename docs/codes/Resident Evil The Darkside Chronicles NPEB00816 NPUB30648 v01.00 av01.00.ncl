@@ -413,3 +413,8 @@ B 00010000 04000000
 B 788600207CA407B480A60000 788600207CA407B438A000Z
 [Z]00=Green Herb;06=Handgun;07=Shot Gun;08=Sub Machinegun;09=Magnum;0B=Rocket Launcher;0C=Grenade Launcher;0D=Linear Launcher;0E=Bowgun;0F=Grenade[/Z]
 #
+Unlock FPS (PSXPlace)
+0
+Joey
+0 0046B354 60000000
+#

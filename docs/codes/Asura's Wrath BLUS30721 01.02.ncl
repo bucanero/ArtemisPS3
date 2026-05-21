@@ -98,3 +98,9 @@ to activate the debug
 menu.
 */
 #
+Unlock FPS (PSXPlace)
+0
+Joey
+0 00873024 28030001
+0 00873170 28030001
+#
