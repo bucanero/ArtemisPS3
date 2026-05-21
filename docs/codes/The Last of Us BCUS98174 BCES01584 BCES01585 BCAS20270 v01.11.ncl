@@ -80,6 +80,7 @@ Medo ported by Randy97Killa
 0 002F78D0 F7FA3EB7
 #
 60 FPS
-1
+0
+PSXPlace
 0 00039d08 38a00000
 #
