@@ -22,6 +22,7 @@ jobs:
       run: |
         echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
         echo "pkg_file=ArtemisPS3-GUI/ArtemisPS3-GUI.pkg" >> $GITHUB_ENV
+        sudo apt install python2.7
 
       # using pre-compiled sdk
     - name: Download PSL1GHT Toolchain
