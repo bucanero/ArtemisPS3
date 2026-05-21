@@ -674,10 +674,12 @@ L1 + O to throw a weapon.
 */
 #
 Disable Depth of Field
-1
+0
+PSXPlace
 0 0043BCBC 38A00000
 #
 Disable Motion Blur
-1
+0
+PSXPlace
 0 0043F210 38A00000
 #
