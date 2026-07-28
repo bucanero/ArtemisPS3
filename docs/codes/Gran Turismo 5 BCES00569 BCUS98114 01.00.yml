@@ -1,0 +1,112 @@
+Version: 1.2
+
+# Gran Turismo 5 (BCUS98114) - patches locais de investigacao do cronometro.
+#
+#
+#   contador bruto = frames x 50   em  *(0x4FEB3A00) + 4     <- fonte real, nao localizada
+#         | 0x003E9798  conversao frames -> ms  (x1000/60)
+#         | 0x003E399C  getter virtual, vtable slot 64
+#         v
+#   0x003E16C4  stw r3, 28(r31)   -> 0x4226019C   snapshot B, 60 Hz
+#         | 0x003E2D54  getter virtual
+#         v
+#   0x0018882C  stw r3, 308(r30)  -> 0x4228E178   snapshot A, 30 Hz
+#         | 0x0028F784 -> memcpy 0x00CF9050, triple buffer de 384 B
+#         v
+#   0x4228E2F8, 0x4228E478 e as demais copias
+#
+
+
+PPU-a5e547ce3ce25092ac6cae85631f50ba5d9ea914:
+
+  "GT5 - CONGELAR CRONOMETRO DA PROVA (fonte real)":
+    Games:
+      "Gran Turismo 5":
+        BCUS98114: [ All ]
+    Author: "local"
+    Notes: "TESTADO E FUNCIONANDO (26/07/2026): o cronometro trava em 00000. Anula o store que faz o contador bruto andar. Esta e a fonte: tudo o mais na cadeia. A funcao 0x003E976C tem 1 unico chamador (0x0040EC08)."
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0x003E9780, 0x60000000 ] # stw r0,4(r3) -> nop
+
+  # ------------------------------------------------------------------
+  # VARIANTES DE VELOCIDADE
+  #
+  # Tres pontos diferentes da cadeia, com trade-offs distintos:
+  #
+  #   A (0x0040EC00) - escala o incremento logo antes da chamada. Escreve
+  #       so r4, le r26, e e a ultima instrucao antes do bl. Funciona
+  #       independente de como o r26 foi calculado. SEGURO, mas so alcanca
+  #       potencias de dois.
+  #
+  #   C (0x003E9798 + 0x003E97A4) - troca a constante magica do divisor da
+  #       conversao. Qualquer porcentagem com erro 0. Porem escala o tempo
+  #       DERIVADO, nao o contador: o bruto continua em velocidade cheia, e
+  #       afeta os 5 chamadores da conversao (tempos de volta inclusive).
+  #       C-70% TESTADO E FUNCIONANDO.
+  #
+  # ------------------------------------------------------------------
+
+  "GT5 velocidade A-50% (contador, seguro)":
+    Games:
+      "Gran Turismo 5":
+        BCUS98114: [ All ]
+    Author: "local"
+    Notes: "TESTADO E FUNCIONANDO (26/07/2026). Escala o incremento do contador pela metade. Ponto mais seguro da cadeia: desacelera o contador bruto, entao tudo abaixo desacelera junto."
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0x0040EC00, 0x7F440E70 ] # rldicl r4,r26,0,32 -> srawi r4,r26,1
+
+  "GT5 velocidade A-25% (contador, seguro)":
+    Games:
+      "Gran Turismo 5":
+        BCUS98114: [ All ]
+    Author: "local"
+    Notes: "Idem, um quarto da velocidade."
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0x0040EC00, 0x7F441670 ] # rldicl r4,r26,0,32 -> srawi r4,r26,2
+
+  "GT5 velocidade C-90% (conversao, erro 0)":
+    Games:
+      "Gran Turismo 5":
+        BCUS98114: [ All ]
+    Author: "local"
+    Notes: "Divisor da conversao de 50 para 55.5556. Escala o tempo derivado, nao o contador bruto."
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0x003E9798, 0x3D2049BA ] # lis r9, 0x49BA
+      - [ be32, 0x003E97A4, 0x61295E36 ] # ori r9, r9, 0x5E36
+
+  "GT5 velocidade C-80% (conversao, erro 0)":
+    Games:
+      "Gran Turismo 5":
+        BCUS98114: [ All ]
+    Author: "local"
+    Notes: "Divisor de 50 para 62.5."
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0x003E9798, 0x3D204189 ] # lis r9, 0x4189
+      - [ be32, 0x003E97A4, 0x6129374C ] # ori r9, r9, 0x374C
+
+  "GT5 velocidade C-70% (conversao, erro 0)":
+    Games:
+      "Gran Turismo 5":
+        BCUS98114: [ All ]
+    Author: "local"
+    Notes: "TESTADO E FUNCIONANDO (26/07/2026). Divisor de 50 para 71.4286. Este e o 70% exato."
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0x003E9798, 0x3D203958 ] # lis r9, 0x3958
+      - [ be32, 0x003E97A4, 0x61291063 ] # ori r9, r9, 0x1063
+
+  "GT5 velocidade C-50% (conversao, erro 0)":
+    Games:
+      "Gran Turismo 5":
+        BCUS98114: [ All ]
+    Author: "local"
+    Notes: "Divisor de 50 para 100. Compare com A-50%: se os dois derem o mesmo resultado visual mas so um afetar a aprovacao da prova, isso revela por onde o julgamento le o tempo."
+    Patch Version: 1.0
+    Patch:
+      - [ be32, 0x003E9798, 0x3D2028F5 ] # lis r9, 0x28F5
+      - [ be32, 0x003E97A4, 0x6129C290 ] # ori r9, r9, 0xC290
