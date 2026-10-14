@@ -6,7 +6,7 @@ An Open Source Playstation 3 Hacking System created under the [Project Artemis i
 
 Notes
 -----------
-This is a fork of Dnawrkshp's [ArtemisPS3](https://github.com/Dnawrkshp/ArtemisPS3), that includes the following network features:
+This is a fork of [Dnawrkshp](https://github.com/Dnawrkshp/)'s [ArtemisPS3](https://github.com/Dnawrkshp/ArtemisPS3), that includes the following network features:
 
  - **Online Cheat Database:** access to the latest cheats for over +2000 games online.
  - **Local Database Update:** download and update your local cheat database with the latest codes.
